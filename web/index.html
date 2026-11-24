@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuned in Markets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/market.js"></script>
+<script src="/lt.js"></script>
+<script src="/methods.js"></script>
+<script src="/deep.js"></script>
+<style>
+html,body{margin:0;background:#edf0f3}
+.section{display:block}
+.divider{height:1px;background:#d9dee6;margin:8px 22px 6px}
+#mkt{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid #d9dee6;display:flex;align-items:center;gap:10px;padding:6px 22px;font:12px Inter,system-ui,sans-serif;color:#6b7487}
+#mkt b{color:#141a26;letter-spacing:.4px;font-size:11px}
+#mkt button{font:600 12px Inter,system-ui,sans-serif;border:1px solid #d9dee6;background:#fff;color:#44506a;border-radius:999px;padding:4px 14px;cursor:pointer}
+#mkt button.on{background:#141a26;border-color:#141a26;color:#fff}
+#mkt .sp{flex:1}
+#bell{position:relative}
+#bn{display:none;background:#dc3f54;color:#fff;border-radius:999px;font-size:10px;padding:0 6px;margin-left:6px}
+#alp{display:none;position:absolute;right:22px;top:36px;width:400px;max-height:70vh;overflow:auto;background:#fff;border:1px solid #d9dee6;border-radius:12px;box-shadow:0 14px 34px rgba(18,24,38,.16);z-index:80;font:12.5px Inter,system-ui,sans-serif;color:#141a26}
+#alp h4{margin:0;padding:10px 14px;font-size:12px;border-bottom:1px solid #eef1f5;display:flex;justify-content:space-between;align-items:center}
+#alp h4 button{font-size:11px;padding:2px 9px}
+.al{padding:8px 14px;border-bottom:1px solid #f1f3f7;cursor:pointer;display:grid;grid-template-columns:62px 1fr;gap:2px 10px}
+.al:hover{background:#f6f8fb}
+.al b{font-size:12.5px}.al .k{font-size:9.5px;font-weight:700;letter-spacing:.5px;color:#6b7487}
+.al .t{grid-column:2;color:#44506a;font-size:12px;line-height:1.35}.al .w{grid-column:2;color:#9aa3b2;font-size:11px}
+.al.bull b{color:#22a05a}.al.bear b{color:#dc3f54}
+#alp .none{padding:18px 14px;color:#6b7487}
+.soon{font:13px Inter,system-ui,sans-serif;color:#6b7487;padding:28px 22px;text-align:center}
+#boot{font:13px Inter,system-ui,sans-serif;color:#6b7487;padding:40px;text-align:center}
+#mkt #disc{background:#fff1e0;border-color:#f2c48d;color:#9a4b00;font-weight:600;font-size:11.5px;padding:4px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+#mkt #disc:hover{background:#ffe7c9}
+#warm{font:600 11px Inter,system-ui,sans-serif;color:#9a4b00;white-space:nowrap}#warm i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f08c1b;margin-right:6px;animation:wp 1.2s ease-in-out infinite}@keyframes wp{50%{opacity:.25}}
+@media (max-width:1250px){#mktnote{display:none}}
+@media (max-width:900px){#mkt #disc{font-size:0;padding:4px 10px}#mkt #disc:before{content:"Notice";font-size:11.5px}}
+#dm{display:none;position:fixed;inset:0;z-index:200;background:rgba(18,24,38,.5);align-items:center;justify-content:center;padding:4vh 14px}
+#dm.open{display:flex}
+#dm .box{max-height:92vh;overflow:auto;background:#fff;border-radius:14px;max-width:720px;width:100%;box-shadow:0 24px 60px rgba(18,24,38,.35);font:13.5px/1.55 Inter,system-ui,sans-serif;color:#141a26}
+#dm .hd{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid #eef1f5;position:sticky;top:0;background:#fff;border-radius:14px 14px 0 0}
+#dm .hd b{font-size:15px}#dm .hd button{border:0;background:#f1f3f7;border-radius:8px;font-size:13px;padding:6px 12px;cursor:pointer}
+#dm .bd{padding:6px 22px 22px}
+#dm .tl{background:#fff1e0;border:1px solid #f2c48d;border-radius:10px;padding:11px 14px;margin:14px 0 4px;color:#7a3b00;font-weight:600}
+#dm h5{margin:18px 0 4px;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:#9a4b00}
+#dm p,#dm li{margin:4px 0;color:#2c3548}#dm ul{margin:4px 0;padding-left:20px}
+#dm form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:8px}
+#dm input{border:1px solid #d9dee6;border-radius:8px;padding:8px 10px;font:13px Inter,system-ui,sans-serif;min-width:0}
+#dm form button{border:0;background:#141a26;color:#fff;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer}
+#dm .ok{color:#22a05a;font-weight:600}#dm .bad{color:#dc3f54;font-weight:600}
+#dm table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:6px}#dm td{padding:4px 0;border-bottom:1px solid #f1f3f7}#dm td:last-child{text-align:right;font-weight:600}
+@media (max-width:640px){#dm form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- Each part keeps its own styles and code inside its own shadow root, so the two never clash
+     and more parts can be added below the same way. -->
+<div id="mkt"><b>MARKET</b><button data-m="IN">India</button><button data-m="US">US</button><span class="sp"></span><button id="disc" title="Read the full notice">Personal use only. Not financial advice. You are responsible for any trades you place.</button><span id="warm"></span><span class="sp"></span><span id="mktnote"></span><button id="bell">Alerts<span id="bn"></span></button><div id="alp"><h4><span>ALERTS · what changed on the tape</span><button id="alnotif">Desktop notifications</button></h4><div id="alist"><div class="none">Nothing yet. Alerts appear while the market is open.</div></div></div></div>
+<div id="dm"><div class="box"><div class="hd"><b>Before you rely on anything here</b><button id="dx">Close</button></div><div class="bd">
+<div class="tl">Personal use only. Not financial advice. You are responsible for any trades you place.</div>
+<h5>Personal use only</h5>
+<p>Tuned in Markets runs on your own computer, for you. Do not sell it, host it for others, or republish its data or screens. The prices and filings come from the sources below straight to your machine. They are not ours to license, and each source has its own terms that you agree to follow by using it.</p>
+<h5>Not financial advice</h5>
+<p>Everything here is information for your own research. It is not investment, legal or tax advice, and it is not a recommendation to buy or sell anything. Scores, signals, alerts, backtests and AI reports are mechanical outputs and can be wrong.</p>
+<h5>You are responsible for your trades</h5>
+<p>Any order you place is your decision and your risk. You can lose money, including all of it. Check prices and facts with your broker and with primary sources before you act.</p>
+<h5>Timing and accuracy</h5>
+<ul><li>Live prices refresh every 3 to 15 seconds. US prices typically trail the exchange by about 10 to 20 seconds and Indian stocks by a few seconds. Some indices, such as the Sensex, are 15 minutes late. Do not use any of it to time an entry to the second.</li>
+<li>Fundamentals, filings, scores and screens are rebuilt daily or weekly. They can be incomplete, restated or out of date.</li>
+<li>Backtests are simulated trades with assumed costs on past data. They do not predict the future.</li></ul>
+<h5>Where the data comes from</h5>
+<ul><li>Yahoo Finance: prices, charts, daily history</li><li>SEC EDGAR: US company filings and insider forms</li><li>NSE India: flows, options, bulk deals, holidays</li><li>Nasdaq: index membership lists</li><li>Google News: headlines</li></ul>
+<p>The app paces its own requests. If a source blocks you or changes its rules, that part of the app stops working until it is updated.</p>
+<h5>Your contact for SEC requests</h5>
+<p id="secmsg">The SEC asks everyone who fetches its data by program to say who they are. Enter your own name and email. They stay in the <code>.env</code> file on your computer and are sent only to the SEC, in the request header it asks for.</p>
+<form id="secform"><input id="secn" placeholder="Your name" autocomplete="name"><input id="sece" placeholder="you@example.com" autocomplete="email" type="email"><button>Save</button></form>
+<h5>AI research (optional)</h5>
+<p>Deep research uses your own API key from OpenAI or another provider. You pay that provider directly, a few cents to about fifteen cents per stock. Your key stays in <code>.env</code> and is sent only to that provider. The report is written by AI, can contain mistakes, and is not advice.</p>
+<h5>No warranty</h5>
+<p>The software is provided as is under the MIT licence, without warranty of any kind. The authors are not liable for losses of any kind.</p>
+<h5>Data status right now</h5>
+<table id="dstat"><tr><td>Loading…</td><td></td></tr></table>
+</div></div></div>
+<div id="boot">Loading the dashboard…</div>
+<div class="section" id="smart-host"></div>
+<div class="divider"></div>
+<div class="section" id="sector-host"></div>
+<div class="divider"></div>
+<div class="section" id="scan-host"></div>
+<div class="divider"></div>
+<div class="section" id="long-host"></div>
+<div class="divider"></div>
+<div class="section" id="lab-host"></div>
+<script>
+async function mount(hostId, url) {
+  const html = await (await fetch(url, {cache: "no-store"})).text();
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const host = document.getElementById(hostId), root = host.attachShadow({mode: "open"});
+  // the part's page styles were written for a whole page: :root and body become the part itself
+  const css = [...doc.querySelectorAll("style")].map(s => s.textContent).join("\n")
+    .replace(/:root/g, ":host").replace(/html,body\{/g, ":host{display:block;");
+  const code = [...doc.querySelectorAll("script:not([src])")].map(s => s.textContent);
+  doc.querySelectorAll("script").forEach(s => s.remove());
+  root.innerHTML = `<style>${css}</style>` + doc.body.innerHTML;
+  // its code looks things up in its own part only
+  const scoped = new Proxy(document, {get(t, p) {
+    if (p === "getElementById") return id => root.getElementById(id);
+    if (p === "querySelector") return s => root.querySelector(s);
+    if (p === "querySelectorAll") return s => root.querySelectorAll(s);
+    const v = t[p]; return typeof v === "function" ? v.bind(t) : v;
+  }});
+  code.forEach(c => new Function("document", c)(scoped));
+}
+document.querySelectorAll("#mkt button").forEach(b => { b.classList.toggle("on", b.dataset.m === MK.id); b.onclick = () => b.dataset.m !== MK.id && setMarket(b.dataset.m); });
+document.getElementById("mktnote").textContent = MK.id === "IN" ? "NSE · 09:15 to 15:30 IST" : "US exchanges · 09:30 to 16:00 ET · S&P 1500 map, S&P 500 + Nasdaq-100 tape";
+
+// ---------- notice, SEC contact, warm-up status ----------
+(() => {
+  const $ = id => document.getElementById(id), dm = $("dm");
+  const open = (focusSec) => { dm.classList.add("open"); poll(); if (focusSec) { $("secmsg").scrollIntoView({block: "center"}); $("secn").focus(); } };
+  $("disc").onclick = () => open(false);
+  $("dx").onclick = () => dm.classList.remove("open");
+  dm.onclick = e => { if (e.target === dm) dm.classList.remove("open"); };
+  document.addEventListener("keydown", e => e.key === "Escape" && dm.classList.remove("open"));
+  const fill = async () => { try { const s = await (await fetch("/api/settings")).json(); $("secn").value = s.sec_name || ""; $("sece").value = s.sec_email || ""; return s; } catch (e) { return {}; } };
+  $("secform").onsubmit = async e => {
+    e.preventDefault();
+    const r = await fetch("/api/settings", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: $("secn").value, email: $("sece").value})});
+    const d = await r.json(); const m = $("secmsg");
+    if (r.ok) poll();
+    m.innerHTML = r.ok ? '<span class="ok">Saved. US company data will load from now on.</span>' : `<span class="bad">${d.error || "Could not save."}</span>`;
+  };
+  const row = (a, b) => `<tr><td>${a}</td><td>${b}</td></tr>`;
+  let last = null;
+  async function poll() {
+    try {
+      const s = await (await fetch("/api/status")).json(); last = s;
+      const age = s.time ? Math.max(0, Math.round((s.now || Date.now() / 1000) - s.time)) : null;
+      const labTxt = s.lab === "done" ? "ready" : s.lab === "error" ? "stopped (see the terminal)" : (s.lab_msg || s.lab || "waiting");
+      const busy = !s.ready || s.progress || (s.lab && !["done", "idle", ""].includes(s.lab));
+      const w = $("warm");
+      w.innerHTML = busy ? `<i></i>Warming up${s.progress ? ": " + String(s.progress).slice(0, 48) : ""}` : "";
+      w.title = busy ? "First minutes after a start: the app is loading history in the background. Live prices may update slowly until this clears." : "";
+      $("dstat").innerHTML = row("Live prices updated", age === null ? "waiting for the first prices" : age + " s ago") + row("Stocks with price history", s.history ?? "n/a") + row("Strategy lab", labTxt) +
+        row("SEC contact", s.sec_ready ? '<span class="ok">set</span>' : '<span class="bad">not set</span>');
+      return s;
+    } catch (e) { $("dstat").innerHTML = row("The app is not answering", ""); }
+  }
+  poll(); setInterval(poll, 10000);
+  fill().then(async s => { const st = last || await poll(); if (MK.id === "US" && st && st.sec_ready === false) open(true); });
+})();
+// ---------- alerts: new structure breaks, sweeps and big moves on the tape ----------
+(() => {
+  let last = 0, list = [], unread = 0, notify = false;
+  const esc = x => String(x ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const clock = t => new Date(t * 1000).toLocaleTimeString("en-GB", {timeZone: MK.tz, hour: "2-digit", minute: "2-digit"});
+  const draw = () => {
+    document.getElementById("alist").innerHTML = list.length ? list.map(a => `<div class="al ${a.dir}" data-s="${esc(a.sym)}"><b>${esc(a.sym)}</b><span class="k">${a.kind} · ${clock(a.t)} ${MK.id === "IN" ? "IST" : "ET"}</span><span class="t">${esc(a.text)}</span>${a.pct != null ? `<span class="w">${MK.cur}${a.ltp} · ${a.pct > 0 ? "+" : ""}${a.pct}% today</span>` : ""}</div>`).join("") : '<div class="none">Nothing yet. Alerts appear while the market is open.</div>';
+    document.querySelectorAll("#alist .al").forEach(e => e.onclick = () => { document.getElementById("alp").style.display = "none"; window.openChart && window.openChart(e.dataset.s); });
+    const n = document.getElementById("bn"); n.style.display = unread ? "inline" : "none"; n.textContent = unread;
+  };
+  const poll = async () => {
+    try {
+      const d = await (await fetch("/api/alerts?since=" + last)).json();
+      if (d.alerts && d.alerts.length) {
+        d.alerts.slice().reverse().forEach(a => { if (notify && document.hidden && window.Notification && Notification.permission === "granted") new Notification(`${a.sym} · ${a.kind}`, {body: a.text}); });
+        list = d.alerts.concat(list).slice(0, 60);
+        if (document.getElementById("alp").style.display !== "block") unread += d.alerts.length;
+        draw();
+      }
+      last = d.last || last;
+    } catch (e) {}
+  };
+  document.getElementById("bell").onclick = () => { const p = document.getElementById("alp"); p.style.display = p.style.display === "block" ? "none" : "block"; unread = 0; draw(); };
+  document.getElementById("alnotif").onclick = async () => { if (!window.Notification) return; const r = await Notification.requestPermission(); notify = r === "granted"; document.getElementById("alnotif").textContent = notify ? "Notifications on" : "Blocked in browser"; };
+  poll(); setInterval(poll, 15000);
+})();
+(async () => {
+  await mount("smart-host", "/smart.html");
+  document.getElementById("boot").remove();
+  await mount("sector-host", "/sector.html");
+  await mount("scan-host", "/scan.html");
+  await mount("long-host", "/long.html");
+  await mount("lab-host", "/lab.html");
+})();
+</script>
+</body>
+</html>

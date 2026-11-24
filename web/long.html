@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Long Term</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#121826;--ink2:#2b3445;--muted:#6b7487;--line:#e1e5ec;--up:#22a05a;--down:#dc3f54;--blue:#2563eb}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4 Inter,system-ui,sans-serif}
+.mono{font-family:"JetBrains Mono",monospace}
+.up{color:var(--up)}.down{color:var(--down)}.muted{color:var(--muted)}
+header{display:flex;align-items:flex-start;gap:12px;padding:16px 22px 8px;flex-wrap:wrap}
+header h1{margin:0;font-size:21px;font-weight:700;letter-spacing:-.2px}
+header .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 14px;font:600 12px Inter;color:var(--ink2);cursor:pointer}
+.seg button.on{background:#e6edf8;color:var(--blue)}.seg button:hover{background:#f3f6fa}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:0 22px 10px}
+.bar select,.bar input[type=text],.bar input[type=number]{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:12.5px Inter;background:#fff;color:var(--ink)}
+.bar input[type=number]{width:120px}.bar input[type=text]{width:190px}
+.bar label{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink2)}
+.wrap{padding:0 22px 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:980px}
+th{position:sticky;top:0;background:#f7f9fc;text-align:right;font:600 10.5px "JetBrains Mono",monospace;letter-spacing:.4px;color:var(--muted);padding:8px 8px;border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap}
+th.l,td.l{text-align:left}th:hover{color:var(--ink)}th.on{color:var(--blue)}
+td{padding:6px 8px;border-bottom:1px solid #f0f2f6;text-align:right;white-space:nowrap}
+td.l{white-space:normal}
+tr.row{cursor:pointer}tr.row:hover td{background:#f6f8fb}
+td b{font-weight:700}td .nm{display:block;color:var(--muted);font-size:11px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
+.sc i{display:inline-block;height:7px;border-radius:4px;background:var(--blue);opacity:.85}
+.chip{display:inline-block;min-width:30px;text-align:center;border-radius:6px;padding:1px 5px;font:600 11.5px "JetBrains Mono",monospace}
+.hi{background:#e8f6ee;color:#17603a}.mid{background:#fff4dc;color:#8a5a00}.lo{background:#fdecef;color:#a02a3d}.na{color:#b4bbc9}
+.note{padding:8px 22px 4px;color:var(--muted);font-size:11.5px;line-height:1.5}
+.more{margin:10px 22px 4px}.more button,.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 14px;font:600 12px Inter;cursor:pointer;color:var(--ink)}
+.btn.pri{background:#141a26;border-color:#141a26;color:#fff}
+.empty{padding:26px 18px;color:var(--muted)}
+.add{display:flex;gap:8px;flex-wrap:wrap;padding:0 22px 10px}.add input{border:1px solid var(--line);border-radius:8px;padding:6px 9px;font:12.5px Inter;background:#fff}
+.x{color:var(--muted);cursor:pointer;padding:0 4px}.x:hover{color:var(--down)}
+.edit{color:var(--muted);cursor:pointer;font-size:11px;text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Long Term</h1><div class="sub" id="sub"></div></div>
+  <span class="sp"></span>
+  <span class="seg" id="tabs"><button data-t="screen" class="on">Screener</button><button data-t="watch">Watchlist</button></span>
+</header>
+<div id="screen">
+  <div class="bar">
+    <select id="method" title="Pick a method analysts use: it filters and orders the list by that method"><option value="">Ranked score (default)</option>
+      <optgroup label="Quality and value"><option value="piotroski">Piotroski F-score, 7 or more</option><option value="magic">Magic Formula rank</option><option value="graham">Graham defensive, 4 or more tests</option><option value="peg">Low PEG, under 1.5</option></optgroup>
+      <optgroup label="Trend and momentum"><option value="minervini">Minervini trend template, 8 of 8</option><option value="stage2">Weinstein Stage 2 (advancing)</option><option value="rs80">Relative strength rating 80+</option><option value="dual">Dual momentum</option></optgroup></select>
+    <select id="sector"><option value="">All sectors</option></select>
+    <input id="mc" type="number" min="0" step="any" placeholder="Min market value">
+    <label><input id="prof" type="checkbox"> Profitable only</label>
+    <input id="q" type="text" placeholder="Find a company">
+    <span class="sp"></span><span class="muted" id="meta"></span>
+  </div>
+  <div class="wrap"><div class="card"><table id="tbl"></table><div class="empty" id="msg" style="display:none"></div></div></div>
+  <div class="more"><button id="more" style="display:none">Show 50 more</button></div>
+  <div class="note" id="mdesc" style="padding-top:2px"></div>
+  <div class="note" id="how"></div>
+</div>
+<div id="watch" style="display:none">
+  <div class="add"><input id="ws" placeholder="Symbol, for example NVDA" style="width:190px"><input id="wn" placeholder="Why? (your own note)" style="width:300px"><input id="wt" type="number" step="any" placeholder="Tell me at price" style="width:140px"><button class="btn pri" id="wadd">Add to watchlist</button></div>
+  <div class="wrap"><div class="card"><table id="wtbl" style="min-width:1000px"></table><div class="empty" id="wmsg" style="display:none"></div></div></div>
+  <div class="note">Stored on this computer in data/watchlist.json. The bell in the top bar tells you when a stock reaches your price, reports earnings within three days, or moves 5% or more in a day while the market is open.</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const MK = window.MK;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = (v, d = 1) => v == null || !isFinite(v) ? "–" : Number(v).toLocaleString(MK.loc, {minimumFractionDigits: d, maximumFractionDigits: d});
+const pct = (v, d = 1) => v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : "") + num(v, d) + "%";
+const mcap = v => v == null ? "–" : MK.id === "US" ? (v >= 1000 ? "$" + num(v / 1000, 1) + "B" : "$" + num(v, 0) + "M") : "₹" + Math.round(v).toLocaleString("en-IN") + " cr";
+const chip = v => v == null ? '<span class="chip na">–</span>' : `<span class="chip ${v >= 70 ? "hi" : v >= 45 ? "mid" : "lo"}">${v}</span>`;
+$("sub").textContent = MK.id === "US" ? "Quality, growth, value and trend ranked across the S&P 1500 from reported figures, and your watchlist" : "Quality, growth, value and trend ranked across the Nifty 500 from reported figures, and your watchlist";
+$("mc").placeholder = MK.id === "US" ? "Min market value, $ million" : "Min market value, ₹ crore";
+let SORT = "score", ORDER = "desc", LIMIT = 50, T = null, TAB = "screen";
+const MDESC = {
+  piotroski: "<b>Piotroski F-score:</b> nine yes/no tests of financial strength (profitable, positive cash flow, return on assets rising, cash earnings above reported earnings, debt falling, liquidity rising, no new shares, gross margin rising, asset turnover rising). 7 to 9 is strong, 0 to 3 is weak. Banks are skipped.",
+  magic: "<b>Magic Formula (Joel Greenblatt):</b> companies ranked by earnings yield (operating profit over enterprise value) and return on capital (operating profit over equity plus net debt), then the two ranks added. #1 is cheapest and best-run by that measure. Banks are skipped, and the return-on-capital figure here is an approximation.",
+  graham: "<b>Graham defensive tests:</b> P/E 15 or less, P/B 1.5 or less (or P/E × P/B under 22.5), current assets at least twice current liabilities, profit in every year on record, a dividend, and earnings growing. Shown as tests passed out of tests that could be run.",
+  peg: "<b>PEG:</b> P/E divided by the yearly earnings growth rate over three years. Under 1 is often read as cheap for its growth. A tiny PEG is usually a tiny base year, so check the growth number behind it.",
+  minervini: "<b>Minervini trend template:</b> price above the 150 and 200-day averages, 150 above 200, the 200 rising for a month, 50 above 150 above 200, price above the 50, at least 25% above the 52-week low, within 25% of the 52-week high, and a relative strength rating of 70 or more. 8 of 8 only.",
+  stage2: "<b>Weinstein Stage 2:</b> price above a rising 30-week (150-day) average: the advancing phase. Stage 1 is a base, 3 a top, 4 a decline. Ordered by relative strength.",
+  rs80: "<b>Relative strength rating:</b> each stock's 3, 6, 9 and 12-month returns weighted 40/20/20/20, ranked 1 to 99 against the whole list. 80 or more means it beat at least 80% of stocks.",
+  dual: "<b>Dual momentum (Antonacci):</b> the 12-month return (skipping the latest month) must be positive (absolute) and beat the market index (relative). Ordered by the 12-month return."
+};
+const COLS = [["sym", "COMPANY", "l"], ["sector", "SECTOR", "l"], ["score", "SCORE"], ["s_quality", "QUALITY"], ["s_growth", "GROWTH"], ["s_value", "VALUE"], ["s_trend", "TREND"], ["roe", "ROE %"], ["op_margin", "OP MARGIN %"],
+  ["rev_cagr3", "SALES / YR 3Y"], ["pe", "P/E"], ["fcf_yield", "FCF YIELD %"], ["div_yield", "DIV YIELD %"], ["mcap", "MARKET VALUE"]];
+const mcols = () => $("method").value ? COLS.slice(0, 2).concat([["mv", "METHOD"]], COLS.slice(2)) : COLS;
+async function load() {
+  const p = new URLSearchParams({method: $("method").value, sort: SORT, order: ORDER, limit: LIMIT, sector: $("sector").value, minmcap: $("mc").value || 0, q: $("q").value.trim(), profitable: $("prof").checked ? 1 : 0});
+  let d; try { d = await (await fetch("/api/lt/screen?" + p)).json(); } catch (e) { return; }
+  if (d.state !== "ready") { $("tbl").innerHTML = ""; $("msg").style.display = "block"; $("msg").textContent = d.msg || "The screener is being built (first run, a few minutes)."; $("more").style.display = "none"; setTimeout(load, 8000); return; }
+  $("msg").style.display = "none";
+  if ($("sector").options.length === 1) d.sectors.forEach(s => $("sector").add(new Option(s, s)));
+  $("meta").textContent = `${d.matching.toLocaleString(MK.loc)} of ${d.total.toLocaleString(MK.loc)} · ${d.universe}`;
+  $("tbl").innerHTML = `<thead><tr>${mcols().map(([k, t, c]) => `<th data-k="${k}" class="${c || ""} ${k === SORT ? "on" : ""}">${t}${k === SORT ? (ORDER === "desc" ? " ▼" : " ▲") : ""}</th>`).join("")}</tr></thead><tbody>` +
+    d.rows.map(r => `<tr class="row" data-s="${esc(r.sym)}"><td class="l"><b>${esc(r.sym)}</b><span class="nm">${esc(r.name)}</span></td><td class="l muted">${esc(r.sector)}</td>
+      ${$("method").value ? `<td><b>${esc(r.mv)}</b></td>` : ""}<td><span class="sc"><b>${r.score ?? "–"}</b>${r.score != null ? `<i style="width:${r.score * .5}px"></i>` : ""}</span></td><td>${chip(r.s_quality)}</td><td>${chip(r.s_growth)}</td><td>${chip(r.s_value)}</td><td>${chip(r.s_trend)}</td>
+      <td>${num(r.roe)}</td><td>${num(r.op_margin)}</td><td class="${r.rev_cagr3 >= 0 ? "up" : "down"}">${pct(r.rev_cagr3)}</td><td>${num(r.pe)}</td><td>${num(r.fcf_yield)}</td><td>${num(r.div_yield, 2)}</td><td>${mcap(r.mcap)}</td></tr>`).join("") + "</tbody>";
+  $("tbl").querySelectorAll("th").forEach(h => h.onclick = () => { const k = h.dataset.k; if (SORT === k) ORDER = ORDER === "desc" ? "asc" : "desc"; else { SORT = k; ORDER = k === "sym" || k === "sector" || k === "pe" ? "asc" : "desc"; } LIMIT = 50; load(); });
+  $("tbl").querySelectorAll("tr.row").forEach(tr => tr.onclick = () => window.openChart && window.openChart(tr.dataset.s));
+  $("more").style.display = d.matching > LIMIT ? "" : "none";
+  $("how").innerHTML = `<b>How to read this.</b> Each score is a percentile among the ${d.total.toLocaleString(MK.loc)} companies (100 = best): <b>Quality</b> (return on equity, margins, cash generation, low debt, profitable years), <b>Growth</b> (sales, earnings and cash flow growth over 3 years), <b>Value</b> (earnings and cash flow against market value), <b>Trend</b> (12- and 6-month price move, above the 200-day average, near its high). A missing figure is skipped, never filled. Score = weighted average (quality 30, growth 25, value 25, trend 10, shareholder returns 10). <b>This finds candidates, not winners:</b> it only sees past reported numbers, and the list is today's index members, so failed companies are missing. Click a company for its ten-year view. Source: ${esc(d.source)}; built ${new Date(d.built * 1000).toLocaleDateString(MK.loc)}.`;
+}
+$("method").onchange = () => { LIMIT = 50; $("mdesc").innerHTML = MDESC[$("method").value] || ""; load(); };
+["sector", "prof"].forEach(i => $(i).onchange = () => { LIMIT = 50; load(); });
+$("mc").onchange = () => { LIMIT = 50; load(); };
+let QT; $("q").oninput = () => { clearTimeout(QT); QT = setTimeout(() => { LIMIT = 50; load(); }, 250); };
+$("more").onclick = () => { LIMIT += 50; load(); };
+
+// ---------- watchlist ----------
+async function post(body) { return (await fetch("/api/lt/watch", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)})).json(); }
+async function loadWatch() {
+  let d; try { d = await (await fetch("/api/lt/watch")).json(); } catch (e) { return; }
+  const rows = d.rows || [];
+  $("wmsg").style.display = rows.length ? "none" : "block"; $("wmsg").textContent = "Nothing on your watchlist yet. Add a symbol above, or open any stock's chart and press Add to watchlist.";
+  $("wtbl").innerHTML = rows.length ? `<thead><tr><th class="l">STOCK</th><th>PRICE</th><th>TODAY</th><th>SINCE ADDED</th><th>YOUR PRICE</th><th>SCORE</th><th>P/E NOW</th><th>VS ITS OWN HISTORY</th><th>NEXT EARNINGS</th><th class="l">YOUR NOTE</th><th></th></tr></thead><tbody>` +
+    rows.map(r => `<tr class="row" data-s="${esc(r.sym)}"><td class="l"><b>${esc(r.sym)}</b><span class="nm">${esc(r.name)}</span></td><td>${r.ltp == null ? "–" : MK.cur + num(r.ltp, 2)}</td><td class="${r.pct >= 0 ? "up" : "down"}">${pct(r.pct, 2)}</td>
+      <td class="${r.since >= 0 ? "up" : "down"}">${pct(r.since)}</td><td>${r.target == null ? "–" : MK.cur + num(r.target, 2) + `<span class="muted"> (${pct(r.to_target)})</span>`}</td><td>${chip(r.score)}</td><td>${num(r.pe_now)}</td>
+      <td>${r.pe_pctile == null ? '<span class="muted">building…</span>' : `${r.pe_pctile}th pctile<span class="muted"> · median ${num(r.pe_median)}</span>`}</td><td>${r.next_earnings || "–"}</td>
+      <td class="l" style="max-width:260px">${esc(r.note) || '<span class="muted">no note</span>'} <span class="edit" data-e="${esc(r.sym)}">edit</span></td><td><span class="x" data-x="${esc(r.sym)}" title="Remove">✕</span></td></tr>`).join("") + "</tbody>" : "";
+  $("wtbl").querySelectorAll("tr.row").forEach(tr => tr.onclick = e => { if (e.target.dataset.x || e.target.dataset.e) return; window.openChart && window.openChart(tr.dataset.s); });
+  $("wtbl").querySelectorAll("[data-x]").forEach(x => x.onclick = async () => { await post({action: "remove", sym: x.dataset.x}); loadWatch(); });
+  $("wtbl").querySelectorAll("[data-e]").forEach(x => x.onclick = async () => { const r = rows.find(y => y.sym === x.dataset.e); const n = prompt("Your note for " + r.sym, r.note || ""); if (n !== null) { await post({action: "update", sym: r.sym, note: n}); loadWatch(); } });
+}
+$("wadd").onclick = async () => { const s = $("ws").value.trim(); if (!s) return; const t = $("wt").value; await post({action: "add", sym: s, note: $("wn").value, target: t === "" ? null : +t}); $("ws").value = $("wn").value = $("wt").value = ""; loadWatch(); };
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { TAB = b.dataset.t; document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b)); $("screen").style.display = TAB === "screen" ? "" : "none"; $("watch").style.display = TAB === "watch" ? "" : "none"; if (TAB === "watch") loadWatch(); });
+load(); setInterval(() => { if (TAB === "watch") loadWatch(); }, 20000);
+</script>
+</body>
+</html>

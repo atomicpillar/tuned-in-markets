@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Stocks</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#121826;--ink2:#2b3445;--muted:#6b7487;--line:#e1e5ec;--up:#22a05a;--upbg:#e8f6ee;--down:#dc3f54;--downbg:#fdecef;--blue:#2563eb}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4 Inter,system-ui,sans-serif}
+.mono{font-family:"JetBrains Mono",monospace}
+.up{color:var(--up)}.down{color:var(--down)}.muted{color:var(--muted)}
+header{display:flex;align-items:flex-start;gap:12px;padding:16px 22px 8px;flex-wrap:wrap}
+header h1{margin:0;font-size:21px;font-weight:700;letter-spacing:-.2px}
+header .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 12px;font:600 12px Inter;color:var(--ink2);cursor:pointer}
+.seg button.on{background:#e6edf8;color:var(--blue)}.seg button:hover{background:#f3f6fa}
+.minp{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:0 10px;font-size:12px;color:var(--muted)}
+.minp input{width:52px;border:0;outline:0;font:600 12px Inter;padding:6px 0;color:var(--ink)}
+.search{position:relative}
+.search input{width:240px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:13px Inter;background:#fff}
+.search input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12);outline:0}
+#hits{position:absolute;right:0;top:36px;width:340px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(18,24,38,.12);display:none;z-index:40;max-height:380px;overflow:auto}
+#hits div{padding:7px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-size:12.5px}#hits div:hover{background:#f3f6fa}
+.wrap{padding:0 22px 22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.breadth{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.breadth .n{font:700 22px "JetBrains Mono"}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line)}
+.bar i{display:block;height:100%}
+.facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted)}.facts b{color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.cols h3{margin:0 0 8px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}.cols h3 small{font-weight:500;color:var(--muted);font-size:11px}
+.r{display:grid;grid-template-columns:112px 1fr 92px 64px;gap:8px;align-items:center;padding:3px 6px;border-radius:6px;cursor:pointer;font-size:12.5px}
+.r:hover{background:#f3f6fa}
+.r b{font-weight:700}.r .nm{color:var(--muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px}
+.r .px,.r .pc{text-align:right;font-family:"JetBrains Mono";font-size:12px}
+.tag{font-size:9.5px;font-weight:700;letter-spacing:.4px;border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--muted);margin-left:5px}
+.empty{color:var(--muted);padding:18px 6px;font-size:12.5px}
+.health{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+.hc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.hc h4{margin:0 0 6px;font:600 10.5px "JetBrains Mono",monospace;letter-spacing:.5px;color:var(--muted)}
+.hc .big{font:700 24px "JetBrains Mono",monospace}.hc .rd{font-size:11.5px;color:var(--muted);margin-top:2px}
+.hc .tr{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:8px}.hc .tr i{display:block;height:100%}
+.hc svg{width:100%;height:34px;margin-top:6px;display:block}
+.hnote{color:var(--muted);font-size:11px;margin:-2px 0 12px;line-height:1.5}
+.foot{padding:4px 22px 18px;color:var(--muted);font-size:11px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>All Stocks</h1><div class="sub" id="sub"></div></div>
+  <span class="sp"></span>
+  <span class="seg" id="kind"><button data-k="stocks" class="on">Stocks</button><button data-k="etf">ETFs</button><button data-k="all">All</button></span>
+  <span class="minp">Min price <input id="minp" type="number" min="0" step="1"></span>
+  <span class="search"><input id="q" placeholder="Find any listed stock or ETF" autocomplete="off"><div id="hits"></div></span>
+</header>
+<div class="wrap">
+  <div class="card" id="flows" style="display:none;margin-bottom:12px"></div>
+  <div class="health" id="health"></div>
+  <div class="hnote" id="hnote"></div>
+  <div class="card">
+    <div class="breadth"><div><div class="n up" id="adv">–</div><div class="muted">rising</div></div><div><div class="bar" id="bar"></div><div class="facts" id="facts"></div></div><div style="text-align:right"><div class="n down" id="dec">–</div><div class="muted">falling</div></div></div>
+  </div>
+  <div class="cols"><div class="card"><h3>Biggest gainers <small id="tup"></small></h3><div id="up"></div></div><div class="card"><h3>Biggest losers <small id="tdn"></small></h3><div id="down"></div></div></div>
+</div>
+<div class="foot" id="foot"></div>
+<script>
+const $ = id => document.getElementById(id);
+const MK = window.MK;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pc = x => x == null ? "–" : (x > 0 ? "+" : "") + Number(x).toFixed(2) + "%";
+let KIND = "stocks", MINP = null, T = null;
+const SUB = {IN: "Every NSE-listed stock and ETF: how many rose and fell, and the biggest movers", US: "Every US-listed stock and ETF: how many rose and fell, and the biggest movers"};
+$("sub").textContent = SUB[MK.id];
+$("foot").textContent = (MK.id === "IN" ? "NSE equities and ETFs" : "Nasdaq, NYSE, NYSE American, Arca and Cboe listings") + " · prices from Yahoo, refreshed every few minutes while the market is open · very low-priced stocks are hidden by the minimum price · a screen, not advice";
+function row(r) {
+  return `<div class="r" data-s="${esc(r.sym)}"><span><b>${esc(r.sym)}</b>${r.etf ? '<span class="tag">ETF</span>' : ""}</span><span class="nm">${esc(r.name)}</span><span class="px">${MK.cur}${MK.num(r.ltp)}</span><span class="pc ${r.pct >= 0 ? "up" : "down"}">${pc(r.pct)}</span></div>`;
+}
+function bind(el) { el.querySelectorAll(".r,[data-s]").forEach(e => e.onclick = () => { $("hits").style.display = "none"; window.openChart && window.openChart(e.dataset.s); }); }
+function spark(vals, color) {
+  const v = (vals || []).filter(x => x != null);
+  if (v.length < 3) return `<div class="rd" style="margin-top:6px">history builds with each close</div>`;
+  const W = 160, H = 34, lo = Math.min(...v), hi = Math.max(...v), sp = (hi - lo) || 1;
+  const d = v.map((x, i) => `${i ? "L" : "M"}${(i / (v.length - 1) * W).toFixed(1)},${(H - 3 - (x - lo) / sp * (H - 6)).toFixed(1)}`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`;
+}
+async function health() {
+  let d; try { d = await (await fetch("/api/breadth")).json(); } catch (e) { return; }
+  if (!d || !d.n) { $("health").innerHTML = ""; return; }
+  const read = (v, hi, lo) => v == null ? "" : v >= hi ? "strong" : v >= lo ? "mixed" : "weak";
+  const col = r => r === "strong" ? "var(--up)" : r === "weak" ? "var(--down)" : "#d97706";
+  const h = d.history || {}, adv = d.adv + d.dec || 1, vx = d.vix;
+  const r200 = read(d.above200, 70, 40), r50 = read(d.above50, 70, 40);
+  const bar = (v, c) => `<div class="tr"><i style="width:${Math.max(0, Math.min(100, v || 0))}%;background:${c}"></i></div>`;
+  const vr = !vx ? "" : vx.last < 15 ? "calm" : vx.last < 25 ? "normal" : vx.last < 35 ? "fearful" : "panic";
+  $("health").innerHTML = `
+    <div class="hc"><h4>ABOVE 200-DAY AVERAGE</h4><div class="big" style="color:${col(r200)}">${num0(d.above200)}%</div><div class="rd">${r200} · ${d.universe}</div>${bar(d.above200, col(r200))}${spark(h.above200, "#2563eb")}</div>
+    <div class="hc"><h4>ABOVE 50-DAY AVERAGE</h4><div class="big" style="color:${col(r50)}">${num0(d.above50)}%</div><div class="rd">${r50} · shorter-term trend</div>${bar(d.above50, col(r50))}${spark(h.above50, "#7c3aed")}</div>
+    <div class="hc"><h4>52-WEEK HIGHS VS LOWS</h4><div class="big"><span class="up">${d.new_highs}</span> <span class="muted" style="font-size:15px">vs</span> <span class="down">${d.new_lows}</span></div><div class="rd">${d.near_high} within 2% of a high</div>${spark(h.new_highs && h.new_lows ? h.new_highs.map((x, i) => x - h.new_lows[i]) : [], "#0d9488")}</div>
+    <div class="hc"><h4>RISING VS FALLING TODAY</h4><div class="big"><span class="up">${d.adv}</span> <span class="muted" style="font-size:15px">vs</span> <span class="down">${d.dec}</span></div><div class="rd">${d.universe}</div>${bar(d.adv / adv * 100, "var(--up)")}${spark((h.ad_line || []).map(x => x[1]), "#16a34a")}<div class="rd">advance-decline line</div></div>
+    <div class="hc"><h4>${MK.id === "IN" ? "INDIA VIX" : "VIX"}, THE FEAR GAUGE</h4><div class="big">${vx ? num0(vx.last, 1) : "–"}</div><div class="rd">${vx ? `${vx.pct >= 0 ? "+" : ""}${vx.pct}% today · ${vr}` : "not available"}</div></div>`;
+  $("hnote").textContent = "Rules of thumb, not laws: over 70% of stocks above their 200-day average is a broad, healthy market, under 40% is a weak one; more new highs than lows is healthy; a VIX under 15 is calm and over 25 is fearful. The advance-decline line and the trend lines fill in with each market close.";
+}
+const num0 = (v, d = 0) => v == null ? "–" : Number(v).toLocaleString(MK.loc, {minimumFractionDigits: d, maximumFractionDigits: d});
+async function flows() {
+  if (MK.id !== "IN") return;
+  let d; try { d = await (await fetch("/api/in/flows")).json(); } catch (e) { return; }
+  const f = d.flows || {}, dl = (d.deals || {}).deals || [];
+  if (!f.fii && !dl.length) return;
+  const cr = v => v == null ? "–" : (v >= 0 ? "+" : "-") + "₹" + Math.abs(Math.round(v)).toLocaleString("en-IN") + " cr";
+  const tile = (n, x) => x ? `<div class="hc" style="flex:1;min-width:210px"><h4>${n} · NET CASH MARKET</h4><div class="big ${x.net >= 0 ? "up" : "down"}">${cr(x.net)}</div><div class="rd">bought ₹${Math.round(x.buy).toLocaleString("en-IN")} cr · sold ₹${Math.round(x.sell).toLocaleString("en-IN")} cr</div></div>` : "";
+  $("flows").style.display = "block";
+  $("flows").innerHTML = `<h3 style="margin:0 0 8px;font-size:13px">Foreign and domestic institutions <small class="muted" style="font-weight:500">${esc(f.date || "")} · NSE, provisional</small></h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">${tile("FII / FPI", f.fii)}${tile("DII", f.dii)}</div>
+    ${(f.history || []).length > 1 ? `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><tr class="muted"><th style="text-align:left">Session</th>${f.history.map(x => `<th style="text-align:right">${esc(x.date.slice(5))}</th>`).join("")}</tr>
+      <tr><td>FII net</td>${f.history.map(x => `<td class="${x.fii >= 0 ? "up" : "down"}" style="text-align:right">${cr(x.fii)}</td>`).join("")}</tr><tr><td>DII net</td>${f.history.map(x => `<td class="${x.dii >= 0 ? "up" : "down"}" style="text-align:right">${cr(x.dii)}</td>`).join("")}</tr></table>` : `<div class="muted" style="margin-top:8px;font-size:11.5px">The run of recent sessions builds up here each day the dashboard runs.</div>`}
+    ${dl.length ? `<h3 style="margin:14px 0 6px;font-size:13px">Biggest bulk, block and short deals today <small class="muted" style="font-weight:500">${esc(d.deals.as_on || "")}</small></h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px"><tr class="muted"><th style="text-align:left">Stock</th><th style="text-align:left">Type</th><th style="text-align:left">Who</th><th style="text-align:right">Quantity</th><th style="text-align:right">Price</th><th style="text-align:right">Value</th></tr>
+    ${dl.map(x => `<tr class="r" style="display:table-row" data-s="${esc(x.symbol)}"><td><b>${esc(x.symbol)}</b></td><td>${esc(x.kind)} · <span class="${x.side === "BUY" ? "up" : "down"}">${esc(x.side)}</span></td><td class="muted" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.client)}</td><td style="text-align:right">${Math.round(x.qty).toLocaleString("en-IN")}</td><td style="text-align:right">₹${num0(x.price, 2)}</td><td style="text-align:right"><b>₹${num0(x.value_cr, 1)} cr</b></td></tr>`).join("")}</table>` : ""}
+    <div class="hnote" style="margin:8px 0 0">Net flows are institutions' buying minus selling in the cash market that day. Consistent foreign selling pressures index heavyweights, while domestic buying often cushions it. A single day says little: look at the run of days.</div>`;
+  $("flows").querySelectorAll("tr[data-s]").forEach(tr => tr.onclick = () => window.openChart && window.openChart(tr.dataset.s));
+}
+async function load() {
+  health(); flows();
+  const d = await (await fetch(`/api/scan?kind=${KIND}${MINP != null ? "&min=" + MINP : ""}`)).json();
+  if (MINP == null) { MINP = d.min_price; $("minp").value = MINP; }
+  const b = d.breadth || {}, tot = (b.adv + b.dec + b.flat) || 1;
+  $("adv").textContent = b.adv ?? "–"; $("dec").textContent = b.dec ?? "–";
+  $("bar").innerHTML = `<i style="width:${b.adv / tot * 100}%;background:var(--up)"></i><i style="width:${b.flat / tot * 100}%;background:#c9cfda"></i><i style="width:${b.dec / tot * 100}%;background:var(--down)"></i>`;
+  $("facts").innerHTML = d.time ? `<span><b>${b.up5}</b> up 5%+</span><span><b>${b.down5}</b> down 5%+</span><span><b>${d.shown.toLocaleString(MK.loc)}</b> of ${d.total.toLocaleString(MK.loc)} listed shown</span><span>${d.sweeping ? "refreshing" : "updated " + new Date(d.time * 1000).toLocaleTimeString("en-GB", {timeZone: MK.tz, hour: "2-digit", minute: "2-digit"})}</span>` : `<span>${d.sweeping ? "Scanning every listed stock for the first time (a few minutes)" : "Waiting for the first scan"}</span>`;
+  $("up").innerHTML = (d.up || []).map(row).join("") || '<div class="empty">Scan in progress</div>';
+  $("down").innerHTML = (d.down || []).map(row).join("") || '<div class="empty">Scan in progress</div>';
+  $("tup").textContent = $("tdn").textContent = KIND === "etf" ? "ETFs" : KIND === "all" ? "stocks and ETFs" : "stocks";
+  bind($("up")); bind($("down"));
+}
+document.querySelectorAll("#kind button").forEach(b => b.onclick = () => { KIND = b.dataset.k; document.querySelectorAll("#kind button").forEach(x => x.classList.toggle("on", x === b)); load(); });
+$("minp").onchange = () => { MINP = Math.max(0, +$("minp").value || 0); load(); };
+$("q").oninput = () => { clearTimeout(T); const v = $("q").value.trim(); if (v.length < 1) { $("hits").style.display = "none"; return; }
+  T = setTimeout(async () => { const d = await (await fetch(`/api/scan?kind=all&q=${encodeURIComponent(v)}`)).json();
+    $("hits").innerHTML = (d.hits || []).map(r => `<div data-s="${esc(r.sym)}"><span><b>${esc(r.sym)}</b>${r.etf ? '<span class="tag">ETF</span>' : ""} <span class="muted">${esc(r.name)}</span></span><span class="${r.pct >= 0 ? "up" : "down"} mono">${pc(r.pct)}</span></div>`).join("") || '<div class="muted">Nothing found</div>';
+    $("hits").style.display = "block"; bind($("hits")); }, 200); };
+load(); setInterval(load, 30000);
+</script>
+</body>
+</html>
