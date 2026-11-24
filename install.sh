@@ -7,9 +7,9 @@ PY=$(command -v python3 || true)
 if [ -z "$PY" ]; then echo "Python 3.10 or newer is needed: https://www.python.org/downloads/"; exit 1; fi
 "$PY" -c 'import sys; assert sys.version_info >= (3, 10), "Python 3.10 or newer is needed"'
 echo "Setting up a private Python environment..."
-"$PY" -m venv .venv
-.venv/bin/pip install -q --upgrade pip
-.venv/bin/pip install -q -r requirements.txt
+"$PY" -m venv --clear .venv
+.venv/bin/python -m pip install -q --upgrade pip
+.venv/bin/python -m pip install -q -r requirements.txt
 mkdir -p data
 [ -f .env ] || cp .env.example .env
 .venv/bin/python tools/setup_contact.py
