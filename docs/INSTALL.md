@@ -79,4 +79,13 @@ Tips for the conversation: describe what is on your screen, or paste the text of
 
 ## Update later
 
-Download the new ZIP, unpack it next to the old folder, copy your old `.env` file and your old `data` folder into the new one, and run it. Your watchlist and history stay.
+Stop the app (Ctrl+C), then run the update script. It downloads the latest version, replaces the program files and keeps your `.env`, your `data` folder and your settings.
+
+- **Mac:** `cd ~/tuned-in-markets && bash update.sh`
+- **Windows:** double-click `update.bat`
+
+Then start the app again. If your copy is older than the update script, run this once on a Mac, and it sets itself up:
+
+```bash
+cd ~/tuned-in-markets && curl -fsSL https://raw.githubusercontent.com/atomicpillar/tuned-in-markets/main/tools/update.py -o tools/update.py && .venv/bin/python tools/update.py
+```

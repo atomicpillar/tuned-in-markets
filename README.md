@@ -54,7 +54,7 @@ No account. No subscription. Nothing leaves your machine except the requests it 
 
 ## Contents
 
-[Why it exists](#why-it-exists) · [The tour](#the-tour) · [How it works](#how-it-works) · [Install](#install) · [First run](#first-run-and-warm-up) · [A day with it](#a-trading-day-with-it) · [Deep research](#deep-research-with-your-own-ai-key) · [Privacy](#privacy-and-security) · [Project layout](#project-layout) · [FAQ](#faq) · [Notice](#important-notice) · [Licence](#licence)
+[Why it exists](#why-it-exists) · [The tour](#the-tour) · [How it works](#how-it-works) · [Install](#install) · [Update](#update) · [First run](#first-run-and-warm-up) · [A day with it](#a-trading-day-with-it) · [Deep research](#deep-research-with-your-own-ai-key) · [Privacy](#privacy-and-security) · [Project layout](#project-layout) · [FAQ](#faq) · [Notice](#important-notice) · [Licence](#licence)
 
 ---
 
@@ -228,6 +228,23 @@ Describe what you see on your screen, or paste the text of an error. Never paste
 
 ---
 
+## Update
+
+New versions fix bugs and add features. To update, stop the app (Ctrl+C), then run the update script. It downloads the latest version and replaces the program files. Your keys (`.env`), history and watchlist (`data`) and settings are kept.
+
+| | |
+|---|---|
+| **Mac** | `cd ~/tuned-in-markets && bash update.sh` |
+| **Windows** | double-click **`update.bat`** |
+
+Then start the app again. If you installed before the update script existed, run this once instead and it sets itself up:
+
+```bash
+cd ~/tuned-in-markets && curl -fsSL https://raw.githubusercontent.com/atomicpillar/tuned-in-markets/main/tools/update.py -o tools/update.py && .venv/bin/python tools/update.py
+```
+
+---
+
 ## First run and warm-up
 
 Prices appear within about a minute. Everything else is built in the background and fills in as it finishes. A small orange **Warming up** note in the top bar shows the app is still loading.
@@ -334,7 +351,7 @@ Tuned in Markets is for **personal use** on your own computer. It is **not finan
 - Backtests are simulated trades with assumed costs on past data. They do not predict the future and are flattered by survivorship bias.
 - AI research is written by a language model and can contain mistakes.
 - Data comes from Yahoo Finance, SEC EDGAR, NSE India, Nasdaq and Google News, each under its own terms, which you agree to follow by using the app. Do not resell or republish the data. The app paces its own requests.
-- The software is provided as is, under the MIT licence, with no warranty.
+- The software is provided as is, under the MIT licence, with no warranty. It builds on the open-source Market Lab by Sanjeevv (MIT).
 
 The same notice opens inside the app from the orange note in the top bar.
 
@@ -346,7 +363,3 @@ Bug reports and fixes are welcome. Open an issue and include what you did, what 
 
 [MIT](LICENSE). Deep research optionally installs [TradingAgents](https://github.com/TauricResearch/TradingAgents) (Apache-2.0) separately. It is not bundled.
 
-<br>
-<br>
-
-<p align="center"><sub>Built on the open-source Market Lab by Sanjeevv (MIT).</sub></p>
