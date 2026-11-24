@@ -53,4 +53,12 @@
   // every API call carries the market, so the same pages talk to the right engine
   const f = window.fetch.bind(window);
   window.fetch = (u, o) => (typeof u === "string" && u.startsWith("/api/") && window.MK.id === "US") ? f(u + (u.includes("?") ? "&" : "?") + "mkt=US", o) : f(u, o);
+  // chart time axis: lightweight-charts labels in UTC by default, so ticks are formatted in the market's own time zone (the crosshair already is)
+  window.tickFmt = (t, type) => {
+    const d = new Date(t * 1000), o = {timeZone: window.MK.tz};
+    if (type === 0) return d.toLocaleString(window.MK.loc, {...o, year: "numeric"});
+    if (type === 1) return d.toLocaleString(window.MK.loc, {...o, month: "short"});
+    if (type === 2) return d.toLocaleString(window.MK.loc, {...o, day: "numeric"});
+    return d.toLocaleTimeString("en-GB", {...o, hour: "2-digit", minute: "2-digit", ...(type === 4 ? {second: "2-digit"} : {})});
+  };
 })();

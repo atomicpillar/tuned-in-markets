@@ -617,7 +617,7 @@ async function loadChart() {
   MD = d;
   if (!MC) {
     MC = LightweightCharts.createChart($("mc"), {layout: {background: {color: "#ffffff"}, textColor: "#6b7385", fontFamily: "JetBrains Mono", fontSize: 11},
-      grid: {vertLines: {color: "#f0f2f5"}, horzLines: {color: "#f0f2f5"}}, timeScale: {timeVisible: true, borderColor: "#d9dee6", rightOffset: 6},
+      grid: {vertLines: {color: "#f0f2f5"}, horzLines: {color: "#f0f2f5"}}, timeScale: {timeVisible: true, tickMarkFormatter: window.tickFmt, borderColor: "#d9dee6", rightOffset: 6},
       rightPriceScale: {borderColor: "#d9dee6"}, crosshair: {mode: 0},
       localization: {timeFormatter: t => new Date(t * 1000).toLocaleString(MK.loc, {timeZone: MK.tz, day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"})}});
     MS = MC.addCandlestickSeries({upColor: "#2f9e5f", downColor: "#d6455d", borderVisible: false, wickUpColor: "#2f9e5f", wickDownColor: "#d6455d"});
