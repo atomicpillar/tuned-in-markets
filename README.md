@@ -351,7 +351,7 @@ Tuned in Markets is for **personal use** on your own computer. It is **not finan
 - Backtests are simulated trades with assumed costs on past data. They do not predict the future and are flattered by survivorship bias.
 - AI research is written by a language model and can contain mistakes.
 - Data comes from Yahoo Finance, SEC EDGAR, NSE India, Nasdaq and Google News, each under its own terms, which you agree to follow by using the app. Do not resell or republish the data. The app paces its own requests.
-- The software is provided as is, under the MIT licence, with no warranty. It builds on the open-source Market Lab by Sanjeevv (MIT).
+- The software is provided as is, under the MIT licence, with no warranty. It builds on the open-source Market Lab (MIT).
 
 The same notice opens inside the app from the orange note in the top bar.
 
